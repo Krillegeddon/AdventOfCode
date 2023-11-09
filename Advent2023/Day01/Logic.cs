@@ -8,5 +8,9 @@ namespace Advent2023.Day01
 {
     internal class Logic
     {
+        public static string Run()
+        {
+            return "day1";
+        }
     }
 }
