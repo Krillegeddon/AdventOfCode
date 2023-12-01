@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Advent2022\Advent2022.csproj" />
+    <ProjectReference Include="..\Advent2023\Advent2023.csproj" />
   </ItemGroup>
 
 </Project>
