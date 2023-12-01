@@ -9,10 +9,8 @@ namespace Advent2022.Day01
 {
     public class Logic
     {
-        public static string Run()
+        public static void Run()
         {
-            Console.WriteLine("Day 01:");
-
             var model = Model.Parse();
 
             var maxCals = model.Elfs.Max(p => p.TotalNumCalories);
@@ -22,8 +20,6 @@ namespace Advent2022.Day01
             var topThreeTotal = model.Elfs.OrderByDescending(p => p.TotalNumCalories).Take(3).Sum(p => p.TotalNumCalories);
 
             Console.WriteLine("Part2: " + topThreeTotal);
-
-            return "";
         }
     }
 }

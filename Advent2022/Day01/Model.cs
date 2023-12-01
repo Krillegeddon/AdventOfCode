@@ -18,7 +18,7 @@ namespace Advent2022.Day01
         public required List<Elf> Elfs { get; set; }
 
         public static Model Parse()
-        {
+        { 
             var retObj = new Model
             {
                 Elfs = new List<Elf>()
