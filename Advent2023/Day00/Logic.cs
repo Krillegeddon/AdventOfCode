@@ -12,7 +12,7 @@ namespace Advent2023.Day00
         {
             var model = Model.Parse();
 
-            int sum = 0;
+            long sum = 0;
 
             return sum.ToString();
         }
