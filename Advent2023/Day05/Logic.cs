@@ -12,15 +12,10 @@ namespace Advent2023.Day05
     {
         private static long Traverse(List<Map> maps, int mapIndex, long minValue, long maxValue)
         {
-            var isFinal = false;
+            var isFinal = mapIndex == maps.Count - 1;
             var map = maps[mapIndex];
 
             var ranges = map.Ranges.Where(p=>p.SourceEnd >= minValue && p.SourceID <= maxValue).OrderBy(p=>p.SourceID).ToList();
-
-            if (mapIndex == maps.Count - 1)
-            {
-                isFinal = true;
-            }
 
             if (ranges.Count == 0)
             {
@@ -38,31 +33,21 @@ namespace Advent2023.Day05
 
                 if (range.SourceID > checkFrom)
                 {
+                    // We have an unranged area between checkFrom and range.Start! Traverse that! Without conversion.
                     if (isFinal)
-                    {
-                        // Minimum value here is checkFrom...
                         lenghts.Add(checkFrom);
-                    }
                     else
-                    {
-                        // We have an unranged area between checkFrom and range.Start! Traverse that! Without conversion.
                         lenghts.Add(Traverse(maps, mapIndex + 1, checkFrom, range.SourceID - 1));
-                    }
                     checkFrom = range.SourceID;
                 }
 
-                //... and then from RangeStart (or minValue) to end of range (or maxValue)... With conversion.
                 var checkTo = long.Min(range.SourceEnd, maxValue);
-                checkFrom = long.Max(checkFrom, minValue);
 
+                //... and then from RangeStart (or minValue) to end of range (or maxValue)... With conversion.
                 if (isFinal)
-                {
                     lenghts.Add(range.GetDestinationId(checkFrom));
-                }
                 else
-                {
                     lenghts.Add(Traverse(maps, mapIndex + 1, range.GetDestinationId(checkFrom), range.GetDestinationId(checkTo)));
-                }
                 checkFrom = checkTo;
             }
 
@@ -70,13 +55,9 @@ namespace Advent2023.Day05
             if (ranges[ranges.Count - 1].SourceEnd < maxValue)
             {
                 if (isFinal)
-                {
                     lenghts.Add(ranges[ranges.Count - 1].SourceEnd + 1);
-                }
                 else
-                {
                     lenghts.Add(Traverse(maps, mapIndex + 1, ranges[ranges.Count - 1].SourceEnd + 1, maxValue));
-                }
             }
 
             return lenghts.Min(p => p);
