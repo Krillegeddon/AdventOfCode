@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -12,6 +13,18 @@ namespace Advent2023.Day05
         public long SourceID;
         public long DestinationID;
         public long Length;
+        public long SourceEnd { get { return SourceID + Length - 1; } }
+
+        [DebuggerHidden]
+        public long GetDestinationId(long currentId)
+        {
+            if (currentId >= SourceID && currentId < SourceID + Length)
+            {
+                var offset = currentId - SourceID;
+                return DestinationID + offset;
+            }
+            return -1;
+        }
     }
 
     public class Map
