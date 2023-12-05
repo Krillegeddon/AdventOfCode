@@ -1,28 +1,113 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace Advent2023.Day05
 {
+    public class Range
+    {
+        public long SourceID;
+        public long DestinationID;
+        public long Length;
+    }
+
+    public class Map
+    {
+        public int Id;
+        public string Name;
+        public List<Range> Ranges;
+    }
+
+    public class SeedRange
+    {
+        public long From;
+        public long To;
+    }
+
     public class Model
     {
-        public required List<object> Obj { get; set; }
+        public required List<long> Seeds { get; set; }
+        public required List<SeedRange> SeedRanges { get; set; }
+        public required List<Map> Maps { get; set; }
+
 
         public static Model Parse()
         {
             var retObj = new Model
             {
-                Obj = new List<object>()
+                Seeds = new List<long>(),
+                SeedRanges = new List<SeedRange>(),
+                Maps = new List<Map>(),
             };
+
+            var hasReadSeeds = false;
+            var isInMap = false;
+
+            Map currentMap = null;
 
             foreach (var lx in Data.InputData.Split("\n"))
             {
                 var l = lx.Trim();
 
-                if (string.IsNullOrEmpty(l))
+                if (!hasReadSeeds)
+                {
+                    var seedArr = l.Split(" ");
+                    foreach (var seed in seedArr)
+                    {
+                        long o;
+                        if (long.TryParse(seed, out o))
+                        {
+                            retObj.Seeds.Add(o);
+                        }
+                    }
+                    hasReadSeeds = true;
+
+                    for (int i = 0; i < retObj.Seeds.Count; i += 2)
+                    {
+                        retObj.SeedRanges.Add(new SeedRange()
+                        {
+                            From = retObj.Seeds[i],
+                            To = retObj.Seeds[i] + retObj.Seeds[i+1] - 1
+                        });
+                    }
+
                     continue;
+                }
+
+                if (l.Contains(" map:"))
+                {
+                    isInMap = true;
+                    currentMap = new Map()
+                    {
+                        Id = retObj.Maps.Count,
+                        Name = l,
+                        Ranges = new List<Range>()
+                    };
+                    continue;
+                }
+
+                if (string.IsNullOrEmpty(l))
+                {
+                    if (currentMap != null)
+                    {
+                        retObj.Maps.Add(currentMap);
+                        currentMap = null;
+                    }
+                    continue;
+                }
+
+                // Normal line with ranges...
+                var rarr = l.Split(" ");
+                var r = new Range()
+                {
+                    DestinationID = long.Parse(rarr[0]),
+                    SourceID = long.Parse(rarr[1]),
+                    Length = long.Parse(rarr[2])
+                };
+                currentMap.Ranges.Add(r);
             }
 
             return retObj;
