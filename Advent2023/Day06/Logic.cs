@@ -8,7 +8,7 @@ namespace Advent2023.Day06
 {
     public class Logic
     {
-        public static int CalcDist(int speed, int time)
+        public static long CalcDist(long speed, long time)
         {
             return speed * time;
         }
@@ -41,7 +41,6 @@ namespace Advent2023.Day06
                 var numWays = waysToWin.Count;
                 sum *= numWays;
             }
-
 
             return sum.ToString();
         }

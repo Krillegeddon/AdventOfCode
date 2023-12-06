@@ -8,8 +8,8 @@ namespace Advent2023.Day06
 {
     public class Race
     {
-        public int Time;
-        public int RecordDistance;
+        public long Time;
+        public long RecordDistance;
     }
 
     public class Model
@@ -48,10 +48,10 @@ namespace Advent2023.Day06
 
             for (int i = 0; i < timeArr.Count; i++)
             {
-                int t;
-                if (int.TryParse(timeArr[i], out t))
+                long t;
+                if (long.TryParse(timeArr[i], out t))
                 {
-                    int d = int.Parse(distArr[i]);
+                    long d = long.Parse(distArr[i]);
 
                     var race = new Race()
                     {
