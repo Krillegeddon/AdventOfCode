@@ -1,1 +1,1 @@
-﻿Console.WriteLine(Advent2023.Day05.Logic.Run());
+﻿Console.WriteLine(Advent2023.Day06.Logic.Run());
