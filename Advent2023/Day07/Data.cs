@@ -9,7 +9,6 @@ namespace Advent2023.Day07
     internal class Data
     {
         public static string InputDataXX = @"32T3K 765
-33333 687
 T55J5 684
 KK677 28
 KTJJT 220

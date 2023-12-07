@@ -59,7 +59,8 @@ namespace Advent2023.Day07
             foreach (var hand in model.Hands)
             {
                 var kScore = 0;
-                for (var k = 2; k <= 5; k++)
+
+                for (var k = 2; k <= hand.Cards.Count; k++)
                 {
                     var kList = GetGroup(hand, k);
                     if (kList.Count == 1)
@@ -79,6 +80,64 @@ namespace Advent2023.Day07
                             kScore = k * 2 + 1;
                         }
                     }
+                }
+
+                var numJacks = hand.Jacks.Count;
+                if (numJacks == 1)
+                {
+                    if (kScore < 4) // nothing
+                    {
+                        kScore = 4; // pair at least!
+                    }
+                    else if (kScore == 6) // Three of a kind...
+                    {
+                        kScore = 8; // ... becomes four of a kind.
+                    }
+                    else if (kScore == 5) // Two-pairs...
+                    {
+                        kScore = 7; // becomes a Fullhouse instead!
+                    }
+                    else if (kScore == 8) // Four of a kind...
+                    {
+                        kScore = 10; // ... becomes 5 of a kind.
+                    }
+                    else if (kScore == 4) // pair...
+                    {
+                        kScore = 6; // ... becomes three of a kind.
+                    }
+                }
+
+                if (numJacks == 2)
+                {
+                    if (kScore < 4) // nothing
+                    {
+                        kScore = 6; // three of a kind
+                    }
+                    else if (kScore == 4) // pair
+                    {
+                        kScore = 8; // four of a kind
+                    }
+                    else if (kScore == 6) // triss
+                    {
+                        kScore = 10; // femtal
+                    }
+                }
+
+                if (numJacks == 3)
+                {
+                    if (kScore < 4) // nothing
+                    {
+                        kScore = 8; // four of a kind
+                    }
+                    else if (kScore == 4) // pair
+                    {
+                        kScore = 10; // five of a kind
+                    }
+                }
+
+                if (numJacks == 4 || numJacks == 5)
+                {
+                    kScore = 10; // Whatever the non-jack card is, the jacks will be the same and become five of a kind!
                 }
 
                 hand.Score = kScore * 10000000000;

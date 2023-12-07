@@ -10,6 +10,7 @@ namespace Advent2023.Day07
     {
         public List<int> Cards;
         public List<int> CardsUnsorted;
+        public List<int> Jacks;
         public long BidAmount;
         public long Score;
         public int Rank;
@@ -38,7 +39,7 @@ namespace Advent2023.Day07
                 { '8', 8 },
                 { '9', 9 },
                 { 'T', 10 },
-                { 'J', 11 },
+                { 'J', 1 },
                 { 'Q', 12 },
                 { 'K', 13 },
                 { 'A', 14 },
@@ -65,7 +66,8 @@ namespace Advent2023.Day07
                 }
 
                 int bb = 9;
-                hand.Cards = hand.CardsUnsorted.OrderBy(p => p).ToList();
+                hand.Cards = hand.CardsUnsorted.Where(p=>p != 1).OrderBy(p => p).ToList();
+                hand.Jacks = hand.CardsUnsorted.Where(p => p == 1).OrderBy(p => p).ToList();
                 retObj.Hands.Add(hand);
             }
 
