@@ -45,7 +45,8 @@ namespace Advent2023.Day08
         {
             var model = Model.Parse();
 
-            long sum = 0;
+            decimal sum = 0;
+            long suml = 0;
 
             var threads = new List<NodeThread>();
 
@@ -63,9 +64,11 @@ namespace Advent2023.Day08
                 var firstCode = thread.Node.Code;
                 var numSinceLast = 0;
                 var knownInteral = 0;
+                var numRuns = 0;
 
                 while (knownInteral == 0)
                 {
+                    numRuns++;
                     int num = 0;
                     foreach (var dir in model.Path)
                     {
@@ -94,9 +97,11 @@ namespace Advent2023.Day08
             }
 
             sum = 1;
+            suml = 1;
             foreach (var thread in threads)
             {
-                sum *= thread.Interval;
+                sum *= (thread.Interval); // thread.Interval;
+                suml *= (thread.Interval);
             }
 
 
@@ -123,6 +128,8 @@ namespace Advent2023.Day08
 
 
             return sum.ToString();
+
+            //21838660345787142275147567M
         }
     }
 }
