@@ -41,12 +41,32 @@ namespace Advent2023.Day08
             return true;
         }
 
+        static decimal GCD(decimal a, decimal b)
+        {
+            while (b != 0)
+            {
+                decimal temp = b;
+                b = a % b;
+                a = temp;
+            }
+            return a;
+        }
+
+        // Funktion för att beräkna LCM (minsta gemensamma multipel)
+        static decimal LCM(decimal a, decimal b)
+        {
+            return (a * b) / GCD(a, b);
+        }
+
+
+
         public static string Run()
         {
             var model = Model.Parse();
 
             decimal sum = 0;
             long suml = 0;
+            ulong sumu = 0;
 
             var threads = new List<NodeThread>();
 
@@ -98,10 +118,27 @@ namespace Advent2023.Day08
 
             sum = 1;
             suml = 1;
+            sumu = 1;
+            var xx = ulong.MaxValue;
+            var prevSum = sumu;
+
             foreach (var thread in threads)
             {
-                sum *= (thread.Interval); // thread.Interval;
-                suml *= (thread.Interval);
+                sum = LCM(sum, thread.Interval);
+
+                //sum *= (thread.Interval);         // 21838660345787142275147567M
+
+                var c = sum / thread.Interval;
+
+                suml *= (thread.Interval);        // 2758780173146203951
+                sumu *= (ulong)(thread.Interval); // 2758780173146203951
+                // chat gpt:                         878695453606833773671
+                // maxvalue (ulong):                 18446744073709551615
+                if (c == prevSum)
+                {
+                    int bb = 0;
+                }
+                prevSum = sumu;
             }
 
 
@@ -126,6 +163,9 @@ namespace Advent2023.Day08
             //    }
             //}
 
+
+            // 21838660345787142275147567M
+            // 878695453606833773671
 
             return sum.ToString();
 
