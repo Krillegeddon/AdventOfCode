@@ -8,7 +8,7 @@ namespace Advent2023.Day09
 {
     public class Logic
     {
-        public static long ExtrapolateLine(List<long> line)
+        public static long ExtrapolateLine(List<long> line, int part)
         {
             var arr = new List<long>();
 
@@ -30,12 +30,27 @@ namespace Advent2023.Day09
 
             if (allZeroes)
             {
-                return line[line.Count - 1];
+                if (part == 1)
+                {
+                    return line[line.Count - 1];
+                }
+                else
+                {
+                    return line[0];
+                }
             }
 
-            var ex = ExtrapolateLine(arr);
-            var lastVal = line[line.Count - 1];
-            return lastVal + ex;
+            var ex = ExtrapolateLine(arr, part);
+            if (part == 1)
+            {
+                var lastVal = line[line.Count - 1];
+                return lastVal + ex;
+            }
+            else
+            {
+                var firstVal = line[0];
+                return firstVal - ex;
+            }
         }
 
 
@@ -47,7 +62,7 @@ namespace Advent2023.Day09
 
             foreach (var line in model.Lines)
             {
-                var e = ExtrapolateLine(line.Numbers);
+                var e = ExtrapolateLine(line.Numbers, 2);
                 sum += e;
             }
 
