@@ -132,8 +132,9 @@ namespace Advent2023.Day08
 
                 suml *= (thread.Interval);        // 2758780173146203951
                 sumu *= (ulong)(thread.Interval); // 2758780173146203951
-                // chat gpt:                         878695453606833773671
+                // chat gpt:                         878695453606833773671 (asked ChatGPT to calculate power of all my values - totally wrong, though!!)
                 // maxvalue (ulong):                 18446744073709551615
+                // LCM:                              12030780859469 (Correct answer!)
                 if (c == prevSum)
                 {
                     int bb = 0;
