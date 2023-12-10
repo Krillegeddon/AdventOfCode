@@ -8,11 +8,335 @@ namespace Advent2023.Day10
 {
     public class Logic
     {
+        private static char ConvertPipeDirection(PipeDirection pipeDirection)
+        {
+            switch (pipeDirection)
+            {
+                case PipeDirection.Ground:
+                    return '.';
+                case PipeDirection.NorthSouth:
+                    return '|';
+                case PipeDirection.EastWest:
+                    return '-';
+                case PipeDirection.NorthEast:
+                    return 'L';
+                case PipeDirection.NorthWest:
+                    return 'J';
+                case PipeDirection.SouthWest:
+                    return '7';
+                case PipeDirection.SouthEast:
+                    return 'F';
+                case PipeDirection.Start:
+                    return 'S';
+                case PipeDirection.Outside:
+                    return '*';
+                case PipeDirection.Inside:
+                    return '%';
+            }
+            throw new Exception("Unhandled character");
+        }
+
+
+        private static bool FillOutside(Grid g, int x, int y)
+        {
+            var curr = g.Get(x, y);
+            if (curr.PipeDirection != PipeDirection.Ground)
+                return false;
+
+            // we are on a ground... check if there are any open points next to us.
+            for (int x2 = curr.X - 1; x2 <= curr.X + 1; x2++)
+            {
+                for (int y2 = curr.Y - 1; y2 <= curr.Y + 1; y2++)
+                {
+                    var neighbour = g.Get(x2, y2);
+                    if (neighbour.PipeDirection == PipeDirection.Outside)
+                    {
+                        g.Set(x, y, PipeDirection.Outside);
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+
+        private static void PrintLoop(List<Coordinate> previousSteps)
+        {
+            var g = new Grid()
+            {
+                Cells = new List<Coordinate>()
+            };
+
+            foreach (var step in previousSteps)
+            {
+                g.Set(step.X, step.Y, step.PipeDirection);
+            }
+
+            DumpToPipesText(g);
+
+
+            g.Set(0, 0, PipeDirection.Outside);
+            //g.Set(0, 1, PipeDirection.Outside);
+            //var start = g.Get(1, 1);
+            //var first = g.Get(1, 2);
+
+            g.Set(2, 43, PipeDirection.Outside);
+            var start = g.Get(3, 43);
+            var first = g.Get(3, 44);
+
+            Walk(g, first, new List<Coordinate> { start }, true);
+
+            g.Set(0, 0, PipeDirection.Outside);
+
+            DumpToPipesText(g);
+
+            var hasChanged = true;
+            while (hasChanged)
+            {
+                hasChanged = false;
+                for (int y = 0; y < 140; y++)
+                {
+                    for (int x = 0; x < 140; x++)
+                    {
+                        if (FillOutside(g, x, y))
+                            hasChanged = true;
+                    }
+                }
+                DumpToPipesText(g);
+            }
+            int bbbb = 0;
+
+            var numGrounds = 0;
+            for (int y = 0; y < 140; y++)
+            {
+                for (int x = 0; x < 140; x++)
+                {
+                    if (g.Get(x, y).PipeDirection == PipeDirection.Ground)
+                        numGrounds++;
+                }
+            }
+
+            // Paste the numGrounds value onto AoC!
+            int bbbbb = 9;
+
+
+        }
+
+        private static void DumpToPipesText(Grid g)
+        {
+            var sb = new StringBuilder("");
+
+            for (int y = 0; y < 140; y++)
+            {
+                for (int x = 0; x < 140; x++)
+                {
+                    var dir = g.Get(x, y).PipeDirection;
+                    var c = ConvertPipeDirection(dir);
+                    sb.Append(c);
+                }
+                sb.Append('\n');
+            }
+            File.WriteAllText("c:\\Temp\\pipes.txt", sb.ToString());
+        }
+
+
+        private static void Walk(Grid g, Coordinate currentCoordinateRef, List<Coordinate> previousSteps, bool markOutside)
+        {
+            var currentCoordinate = currentCoordinateRef;
+            var stopNode = previousSteps.First();
+
+            if (markOutside)
+            {
+                int ccc = 9;
+            }
+
+            while (true)
+            {
+                var previousStep = previousSteps.Last();
+                previousSteps.Add(currentCoordinate);
+
+                if (markOutside && currentCoordinate == stopNode)
+                {
+                    int bbb = 9;
+                    return;
+                }
+
+
+                if (currentCoordinate.PipeDirection == PipeDirection.Start)
+                {
+                    if (!markOutside)
+                    {
+                        var count = previousSteps.Count / 2;
+                        PrintLoop(previousSteps);
+                        return;
+                    }
+                }
+
+                if (currentCoordinate.PipeDirection == PipeDirection.Ground)
+                {
+                    throw new Exception("We hit ground!");
+                }
+
+
+                if (currentCoordinate.PipeDirection == PipeDirection.NorthWest)
+                {
+                    if (previousStep.X == currentCoordinate.X - 1)
+                    {
+                        // We come from the left... we do a left turn...
+                        if (markOutside)
+                        {
+                            g.SetOutside(currentCoordinate.X + 1, currentCoordinate.Y); // To the right
+                            g.SetOutside(currentCoordinate.X, currentCoordinate.Y + 1); // To the bottom
+                        }
+                        currentCoordinate = g.Get(currentCoordinate.X, currentCoordinate.Y - 1);
+                    }
+                    else
+                    {
+                        // coming from the top and doing a right turn. Stareboard side does not have points to be marked Open
+                        currentCoordinate = g.Get(currentCoordinate.X - 1, currentCoordinate.Y);
+                    }
+                    continue;
+                }
+
+                if (currentCoordinate.PipeDirection == PipeDirection.SouthEast)
+                {
+                    if (previousStep.X == currentCoordinate.X + 1)
+                    {
+                        // We come from the right... doing a left turn downward...
+                        if (markOutside)
+                        {
+                            g.SetOutside(currentCoordinate.X - 1, currentCoordinate.Y); // To the left
+                            g.SetOutside(currentCoordinate.X, currentCoordinate.Y - 1); // To the top
+                        }
+                        currentCoordinate = g.Get(currentCoordinate.X, currentCoordinate.Y + 1);
+                    }
+                    else
+                    {
+                        // we come from bottom, doing a right turn... nothing to be marked as Open!
+                        currentCoordinate = g.Get(currentCoordinate.X + 1, currentCoordinate.Y);
+                    }
+                    continue;
+                }
+
+                if (currentCoordinate.PipeDirection == PipeDirection.SouthWest || currentCoordinate.PipeDirection == PipeDirection.Start)
+                {
+                    if (previousStep.X == currentCoordinate.X - 1)
+                    {
+                        // We come from the left... doing a right turn... nothing to mark
+                        currentCoordinate = g.Get(currentCoordinate.X, currentCoordinate.Y + 1);
+                    }
+                    else
+                    {
+                        // We come from bottom, doing a left turn to the west...
+                        if (markOutside)
+                        {
+                            g.SetOutside(currentCoordinate.X + 1, currentCoordinate.Y); // To the right
+                            g.SetOutside(currentCoordinate.X, currentCoordinate.Y - 1); // To the top
+                        }
+                        currentCoordinate = g.Get(currentCoordinate.X - 1, currentCoordinate.Y);
+                    }
+                    continue;
+                }
+
+                if (currentCoordinate.PipeDirection == PipeDirection.NorthSouth)
+                {
+                    if (previousStep.Y == currentCoordinate.Y - 1)
+                    {
+                        // We come from the top...
+                        if (markOutside)
+                        {
+                            g.SetOutside(currentCoordinate.X - 1, currentCoordinate.Y); // Stareboard side is always open! If we're going south, it's on the left.
+                        }
+                        currentCoordinate = g.Get(currentCoordinate.X, currentCoordinate.Y + 1);
+                    }
+                    else
+                    {
+                        if (markOutside)
+                        {
+                            g.SetOutside(currentCoordinate.X + 1, currentCoordinate.Y); // Stareboard side is always open! If we're going north, it's on the right.
+                        }
+                        currentCoordinate = g.Get(currentCoordinate.X, currentCoordinate.Y - 1);
+                    }
+                    continue;
+                }
+
+                if (currentCoordinate.PipeDirection == PipeDirection.NorthEast)
+                {
+                    if (previousStep.Y == currentCoordinate.Y - 1)
+                    {
+                        // We come from the top, we do a left turn (port side), and both coordinates to the left and bottom can be marked open.
+                        if (markOutside)
+                        {
+                            g.SetOutside(currentCoordinate.X - 1, currentCoordinate.Y); // To the left
+                            g.SetOutside(currentCoordinate.X, currentCoordinate.Y + 1); // To the bottom
+                        }
+                        currentCoordinate = g.Get(currentCoordinate.X + 1, currentCoordinate.Y);
+                    }
+                    else
+                    {
+                        // Coming from right, we do a right turn (stareboard), and no open coordinate will be set.
+                        currentCoordinate = g.Get(currentCoordinate.X, currentCoordinate.Y - 1);
+                    }
+                    continue;
+                }
+
+                if (currentCoordinate.PipeDirection == PipeDirection.EastWest)
+                {
+                    if (previousStep.X == currentCoordinate.X - 1)
+                    {
+                        // We come from the left...
+                        if (markOutside)
+                        {
+                            g.SetOutside(currentCoordinate.X, currentCoordinate.Y + 1); // below
+                        }
+                        currentCoordinate = g.Get(currentCoordinate.X + 1, currentCoordinate.Y);
+                    }
+                    else
+                    {
+                        if (markOutside)
+                        {
+                            g.SetOutside(currentCoordinate.X, currentCoordinate.Y - 1); // Above
+                        }
+                        currentCoordinate = g.Get(currentCoordinate.X - 1, currentCoordinate.Y);
+                    }
+                    continue;
+                }
+
+
+                int bb = 9;
+            }
+
+        }
+
+
         public static string Run()
         {
             var model = Model.Parse();
 
             long sum = 0;
+
+            var start = model.Grid.Cells.Where(p => p.PipeDirection == PipeDirection.Start).Single();
+
+            // Check straight up.
+            var directionsForUp = new List<PipeDirection> { PipeDirection.NorthSouth, PipeDirection.SouthEast, PipeDirection.SouthWest };
+            if (directionsForUp.Contains(model.Grid.Get(start.X, start.Y - 1).PipeDirection))
+            {
+                Walk(model.Grid, model.Grid.Get(start.X, start.Y-1), new List<Coordinate> { start }, false);
+            }
+
+            // Check to right
+            var directionsForRight = new List<PipeDirection> { PipeDirection.EastWest, PipeDirection.NorthWest, PipeDirection.SouthWest };
+            if (directionsForRight.Contains(model.Grid.Get(start.X + 1, start.Y).PipeDirection))
+            {
+                Walk(model.Grid, model.Grid.Get(start.X + 1, start.Y), new List<Coordinate> { start }, false);
+            }
+
+            var directionsForDown = new List<PipeDirection> { PipeDirection.NorthSouth, PipeDirection.SouthWest, PipeDirection.SouthEast };
+            if (directionsForDown.Contains(model.Grid.Get(start.X + 1, start.Y).PipeDirection))
+            {
+                Walk(model.Grid, model.Grid.Get(start.X, start.Y + 1), new List<Coordinate> { start }, false);
+            }
+
 
             return sum.ToString();
         }
