@@ -76,15 +76,25 @@ namespace Advent2023.Day10
 
 
             g.Set(0, 0, PipeDirection.Outside);
+            // Now, manually find a start coordinate and the first coordinate to check.
+            // Make sure that if you move from start to first, the starboard side of should be pointed to the outside of the pipe.. logic is to
+            // mark all ground-coordinates to the starboard as being outside...
+
+            // Test data:
             //g.Set(0, 1, PipeDirection.Outside);
             //var start = g.Get(1, 1);
             //var first = g.Get(1, 2);
 
+            // My real data:
             g.Set(2, 43, PipeDirection.Outside);
             var start = g.Get(3, 43);
             var first = g.Get(3, 44);
 
             Walk(g, first, new List<Coordinate> { start }, true);
+
+            // When Walk returns, all adjecent ground coordinates are marked with Outside that are to the starboard side...
+            // final thing (not soo pretty), just loop through all coordinates that are ground - if those ground coordinates
+            // have an adjacent Outside-coordinate - then the ground coordinate is actually also an Outside coordinate.
 
             g.Set(0, 0, PipeDirection.Outside);
 
@@ -106,6 +116,7 @@ namespace Advent2023.Day10
             }
             int bbbb = 0;
 
+            // Now we just count number of ground coordinates...
             var numGrounds = 0;
             for (int y = 0; y < 140; y++)
             {
@@ -116,10 +127,8 @@ namespace Advent2023.Day10
                 }
             }
 
-            // Paste the numGrounds value onto AoC!
+            // ... and paste the numGrounds value onto AoC!
             int bbbbb = 9;
-
-
         }
 
         private static void DumpToPipesText(Grid g)
