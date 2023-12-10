@@ -8,35 +8,6 @@ namespace Advent2023.Day10
 {
     public class Logic
     {
-        private static char ConvertPipeDirection(PipeDirection pipeDirection)
-        {
-            switch (pipeDirection)
-            {
-                case PipeDirection.Ground:
-                    return '.';
-                case PipeDirection.NorthSouth:
-                    return '|';
-                case PipeDirection.EastWest:
-                    return '-';
-                case PipeDirection.NorthEast:
-                    return 'L';
-                case PipeDirection.NorthWest:
-                    return 'J';
-                case PipeDirection.SouthWest:
-                    return '7';
-                case PipeDirection.SouthEast:
-                    return 'F';
-                case PipeDirection.Start:
-                    return 'S';
-                case PipeDirection.Outside:
-                    return '*';
-                case PipeDirection.Inside:
-                    return '%';
-            }
-            throw new Exception("Unhandled character");
-        }
-
-
         private static bool FillOutside(Grid g, int x, int y)
         {
             var curr = g.Get(x, y);
@@ -60,8 +31,9 @@ namespace Advent2023.Day10
         }
 
 
-        private static void PrintLoop(List<Coordinate> previousSteps)
+        private static int CalculateStep2(List<Coordinate> previousSteps)
         {
+            // Create a new grid, just consisting of the main pipe!
             var g = new Grid()
             {
                 Cells = new List<Coordinate>()
@@ -72,13 +44,16 @@ namespace Advent2023.Day10
                 g.Set(step.X, step.Y, step.PipeDirection);
             }
 
-            DumpToPipesText(g);
+            // Print out the map.
+            Debugging.DumpToPipesText(g);
 
 
             g.Set(0, 0, PipeDirection.Outside);
             // Now, manually find a start coordinate and the first coordinate to check.
             // Make sure that if you move from start to first, the starboard side of should be pointed to the outside of the pipe.. logic is to
             // mark all ground-coordinates to the starboard as being outside...
+            // NOTE!! In the Walk-method, you also need to find how the S mark works like. I have simply hard-coded in my
+            // test data that is is a 7, west-south... really ugly solution though!
 
             // Test data:
             //g.Set(0, 1, PipeDirection.Outside);
@@ -98,7 +73,7 @@ namespace Advent2023.Day10
 
             g.Set(0, 0, PipeDirection.Outside);
 
-            DumpToPipesText(g);
+            Debugging.DumpToPipesText(g);
 
             var hasChanged = true;
             while (hasChanged)
@@ -112,9 +87,8 @@ namespace Advent2023.Day10
                             hasChanged = true;
                     }
                 }
-                DumpToPipesText(g);
+                Debugging.DumpToPipesText(g);
             }
-            int bbbb = 0;
 
             // Now we just count number of ground coordinates...
             var numGrounds = 0;
@@ -127,37 +101,13 @@ namespace Advent2023.Day10
                 }
             }
 
-            // ... and paste the numGrounds value onto AoC!
-            int bbbbb = 9;
+            return numGrounds;
         }
-
-        private static void DumpToPipesText(Grid g)
-        {
-            var sb = new StringBuilder("");
-
-            for (int y = 0; y < 140; y++)
-            {
-                for (int x = 0; x < 140; x++)
-                {
-                    var dir = g.Get(x, y).PipeDirection;
-                    var c = ConvertPipeDirection(dir);
-                    sb.Append(c);
-                }
-                sb.Append('\n');
-            }
-            File.WriteAllText("c:\\Temp\\pipes.txt", sb.ToString());
-        }
-
 
         private static void Walk(Grid g, Coordinate currentCoordinateRef, List<Coordinate> previousSteps, bool markOutside)
         {
             var currentCoordinate = currentCoordinateRef;
             var stopNode = previousSteps.First();
-
-            if (markOutside)
-            {
-                int ccc = 9;
-            }
 
             while (true)
             {
@@ -166,7 +116,6 @@ namespace Advent2023.Day10
 
                 if (markOutside && currentCoordinate == stopNode)
                 {
-                    int bbb = 9;
                     return;
                 }
 
@@ -175,8 +124,6 @@ namespace Advent2023.Day10
                 {
                     if (!markOutside)
                     {
-                        var count = previousSteps.Count / 2;
-                        PrintLoop(previousSteps);
                         return;
                     }
                 }
@@ -201,7 +148,7 @@ namespace Advent2023.Day10
                     }
                     else
                     {
-                        // coming from the top and doing a right turn. Stareboard side does not have points to be marked Open
+                        // coming from the top and doing a right turn. Stareboard side does not have points to be marked Outside
                         currentCoordinate = g.Get(currentCoordinate.X - 1, currentCoordinate.Y);
                     }
                     continue;
@@ -221,7 +168,7 @@ namespace Advent2023.Day10
                     }
                     else
                     {
-                        // we come from bottom, doing a right turn... nothing to be marked as Open!
+                        // we come from bottom, doing a right turn... nothing to be marked as Outside!
                         currentCoordinate = g.Get(currentCoordinate.X + 1, currentCoordinate.Y);
                     }
                     continue;
@@ -254,7 +201,7 @@ namespace Advent2023.Day10
                         // We come from the top...
                         if (markOutside)
                         {
-                            g.SetOutside(currentCoordinate.X - 1, currentCoordinate.Y); // Stareboard side is always open! If we're going south, it's on the left.
+                            g.SetOutside(currentCoordinate.X - 1, currentCoordinate.Y); // Stareboard side is always Outside! If we're going south, it's on the left.
                         }
                         currentCoordinate = g.Get(currentCoordinate.X, currentCoordinate.Y + 1);
                     }
@@ -262,7 +209,7 @@ namespace Advent2023.Day10
                     {
                         if (markOutside)
                         {
-                            g.SetOutside(currentCoordinate.X + 1, currentCoordinate.Y); // Stareboard side is always open! If we're going north, it's on the right.
+                            g.SetOutside(currentCoordinate.X + 1, currentCoordinate.Y); // Stareboard side is always Outside! If we're going north, it's on the right.
                         }
                         currentCoordinate = g.Get(currentCoordinate.X, currentCoordinate.Y - 1);
                     }
@@ -273,7 +220,7 @@ namespace Advent2023.Day10
                 {
                     if (previousStep.Y == currentCoordinate.Y - 1)
                     {
-                        // We come from the top, we do a left turn (port side), and both coordinates to the left and bottom can be marked open.
+                        // We come from the top, we do a left turn (port side), and both coordinates to the left and bottom can be marked Outside.
                         if (markOutside)
                         {
                             g.SetOutside(currentCoordinate.X - 1, currentCoordinate.Y); // To the left
@@ -310,9 +257,6 @@ namespace Advent2023.Day10
                     }
                     continue;
                 }
-
-
-                int bb = 9;
             }
 
         }
@@ -326,28 +270,33 @@ namespace Advent2023.Day10
 
             var start = model.Grid.Cells.Where(p => p.PipeDirection == PipeDirection.Start).Single();
 
+            var previousSteps = new List<Coordinate> { start };
+
             // Check straight up.
             var directionsForUp = new List<PipeDirection> { PipeDirection.NorthSouth, PipeDirection.SouthEast, PipeDirection.SouthWest };
             if (directionsForUp.Contains(model.Grid.Get(start.X, start.Y - 1).PipeDirection))
             {
-                Walk(model.Grid, model.Grid.Get(start.X, start.Y-1), new List<Coordinate> { start }, false);
+                Walk(model.Grid, model.Grid.Get(start.X, start.Y-1), previousSteps, false);
             }
 
             // Check to right
             var directionsForRight = new List<PipeDirection> { PipeDirection.EastWest, PipeDirection.NorthWest, PipeDirection.SouthWest };
             if (directionsForRight.Contains(model.Grid.Get(start.X + 1, start.Y).PipeDirection))
             {
-                Walk(model.Grid, model.Grid.Get(start.X + 1, start.Y), new List<Coordinate> { start }, false);
+                Walk(model.Grid, model.Grid.Get(start.X + 1, start.Y), previousSteps, false);
             }
 
             var directionsForDown = new List<PipeDirection> { PipeDirection.NorthSouth, PipeDirection.SouthWest, PipeDirection.SouthEast };
             if (directionsForDown.Contains(model.Grid.Get(start.X + 1, start.Y).PipeDirection))
             {
-                Walk(model.Grid, model.Grid.Get(start.X, start.Y + 1), new List<Coordinate> { start }, false);
+                Walk(model.Grid, model.Grid.Get(start.X, start.Y + 1), previousSteps, false);
             }
 
+            // Step 1, count is pasted onto AoC!
+            var count = previousSteps.Count / 2;
+            var step2 = CalculateStep2(previousSteps);
 
-            return sum.ToString();
+            return step2.ToString();
         }
     }
 }

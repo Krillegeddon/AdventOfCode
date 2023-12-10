@@ -36,9 +36,6 @@ namespace Advent2023.Day10
         {
             var cell = Get(x, y);
             cell.PipeDirection = pipeDirection;
-
-            //var cell = new Coordinate { X = x, Y = y, PipeDirection = pipeDirection };
-            //Cells.Add(cell);
         }
 
         public Coordinate Get(int x, int y)
@@ -56,11 +53,6 @@ namespace Advent2023.Day10
 
         public void SetOutside(int x, int y)
         {
-            if (x == 3 && y == 6)
-            {
-                int bbb = 9;
-            }
-
             var coord = Get(x, y);
             if (coord.PipeDirection == PipeDirection.Ground)
             {
