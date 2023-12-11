@@ -9,8 +9,8 @@ namespace Advent2023.Day11
     public class GalaxyCoordinate
     {
         public int Id;
-        public int X;
-        public int Y;
+        public long X;
+        public long Y;
     }
 
     public class GalaxyPair
@@ -23,10 +23,10 @@ namespace Advent2023.Day11
     {
         public List<GalaxyCoordinate> Cells;
 
-        public int Height;
-        public int Width;
+        public long Height;
+        public long Width;
 
-        public void CheckBoundraries(int x, int y)
+        public void CheckBoundraries(long x, long y)
         {
             if ((x + 1) >= Width)
                 Width = x + 1;
@@ -38,6 +38,12 @@ namespace Advent2023.Day11
         {
             CheckBoundraries(x, y);
             var cell = Get(x, y);
+
+            if (cell == null)
+            {
+                cell = new GalaxyCoordinate { X = x, Y = y, Id = id };
+                Cells.Add(cell);
+            }
             cell.Id = id;
         }
 
@@ -47,62 +53,56 @@ namespace Advent2023.Day11
 
             if (coordinate == null)
             {
-                coordinate = new GalaxyCoordinate { X = x, Y = y, Id = -1 };
-                Cells.Add(coordinate);
+                return null;
+                //return new GalaxyCoordinate { X = x, Y = y, Id = -1 };
             }
 
             return coordinate;
         }
 
 
-        private bool IsColumnGalaxyFree(int x)
+        private bool IsColumnGalaxyFree(long x)
         {
-            for (int y = 0; y < Height; y++)
-            {
-                var c = Get(x, y);
-                if (c.Id >= 0)
-                    return false;
-            }
-            return true;
+            var cellsInColumn = Cells.Where(p => p.X == x).ToList();
+            if (cellsInColumn.Count == 0)
+                return true;
+            return false;
         }
 
-        private void ExpandColumn(int x)
+        private void ExpandColumn(long x, int expansion)
         {
             foreach (var c in Cells.Where(p => p.X > x).ToList())
             {
-                c.X++;
+                c.X+= expansion;
                 CheckBoundraries(c.X, c.Y);
             }
         }
 
         private bool IsRowGalaxyFree(int y)
         {
-            for (int x = 0; x < Width; x++)
-            {
-                var c = Get(x, y);
-                if (c.Id >= 0)
-                    return false;
-            }
-            return true;
+            var cellsInRow = Cells.Where(p => p.Y == y).ToList();
+            if (cellsInRow.Count == 0)
+                return true;
+            return false;
         }
 
-        private void ExpandRow(int y)
+        private void ExpandRow(int y, int expansion)
         {
             foreach (var c in Cells.Where(p => p.Y > y).ToList())
             {
-                c.Y++;
+                c.Y+= expansion;
                 CheckBoundraries(c.X, c.Y);
             }
         }
 
-        public void Expand()
+        public void Expand(int expansion)
         {
             for (var x = 0; x < Width; x++)
             {
                 if (IsColumnGalaxyFree(x))
                 {
-                    ExpandColumn(x);
-                    x++;
+                    ExpandColumn(x, expansion);
+                    x += expansion;
                 }
             }
 
@@ -110,28 +110,28 @@ namespace Advent2023.Day11
             {
                 if (IsRowGalaxyFree(y))
                 {
-                    ExpandRow(y);
-                    y++;
+                    ExpandRow(y, expansion);
+                    y+= expansion;
                 }
             }
         }
 
         public void DebugWrite()
         {
-            var sb = new StringBuilder("");
-            for (int y = 0; y <= Height; y++)
-            {
-                for (int x = 0; x <= Width; x++)
-                {
-                    var c = Get(x, y);
-                    if (c.Id >= 0)
-                        sb.Append(c.Id);
-                    else
-                        sb.Append(".");
-                }
-                sb.Append('\n');
-            }
-            File.WriteAllText("c:\\Temp\\galaxies.txt", sb.ToString());
+            //var sb = new StringBuilder("");
+            //for (int y = 0; y <= Height; y++)
+            //{
+            //    for (int x = 0; x <= Width; x++)
+            //    {
+            //        var c = Get(x, y);
+            //        if (c?.Id >= 0)
+            //            sb.Append(c.Id);
+            //        else
+            //            sb.Append(".");
+            //    }
+            //    sb.Append('\n');
+            //}
+            //File.WriteAllText("c:\\Temp\\galaxies.txt", sb.ToString());
         }
 
         public List<GalaxyPair> GetGalaxyPairs()
@@ -202,7 +202,8 @@ namespace Advent2023.Day11
             }
 
             retObj.Grid.DebugWrite();
-            retObj.Grid.Expand();
+            retObj.Grid.Expand(1000000-1); // Step 2, tricky... took a few minutes before I realized to expand with 999.999 lines instead of 1.000.000! :-)
+            //retObj.Grid.Expand(1); // Step 1
             retObj.Grid.DebugWrite();
 
             return retObj;

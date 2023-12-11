@@ -12,7 +12,7 @@ namespace Advent2023.Day11
         {
             var model = Model.Parse();
 
-            var pairs = model.Grid.GetGalaxyPairs();
+            var pairs = model.Grid.GetGalaxyPairs(); // 93528
 
             long sum = 0;
 
@@ -25,6 +25,8 @@ namespace Advent2023.Day11
 
 
             return sum.ToString();
+                
+            // 685038871866 <--- too high!
         }
     }
 }
