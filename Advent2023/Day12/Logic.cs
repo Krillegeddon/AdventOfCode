@@ -31,35 +31,27 @@ namespace Advent2023.Day12
             return retObj;
         }
 
-        private static Dictionary<string, long> Memo;
+        private static Dictionary<string, long> _memo;
 
         private static long RunRecursive(char[] row, string groupLenghts)
         {
             var memoKey = new string(row) + "_" + groupLenghts;
 
-            if (Memo.ContainsKey(memoKey))
+            if (_memo.ContainsKey(memoKey))
             {
-                return Memo[memoKey];
+                return _memo[memoKey];
             }
 
             if (string.IsNullOrEmpty(groupLenghts))
             {
-                Memo.Add(memoKey, 0);
+                _memo.Add(memoKey, 0);
                 return 0;
             }
-            List<int> lenghts = null;
-            try
-            {
-                lenghts = groupLenghts.Split(",").Select(p => int.Parse(p)).ToList();
-            }
-            catch (Exception e)
-            {
-                int bbb = 9;
-            }
+            var lenghts = groupLenghts.Split(",").Select(p => int.Parse(p)).ToList();
 
             if (row.Length == 0 && groupLenghts.Length > 0)
             {
-                Memo.Add(memoKey, 0);
+                _memo.Add(memoKey, 0);
                 return 0;
             }
 
@@ -74,7 +66,7 @@ namespace Advent2023.Day12
                 return RunRecursive(Copy(row, skipWorking), groupLenghts);
             }
 
-            // Count number of straight #:s in the beginning... se if they match the first groupLength!
+            // Count number of straight #:s in the beginning...
             var numWrecks = 0;
             for (var i = 0; i < row.Length && row[i] == '#' ; i++)
             {
@@ -84,7 +76,7 @@ namespace Advent2023.Day12
             if (numWrecks > lenghts.First())
             {
                 // If we have more wrecks in a row than we've got in first lenghts, then we're bust!
-                Memo.Add(memoKey, 0);
+                _memo.Add(memoKey, 0);
                 return 0;
             }
 
@@ -93,23 +85,25 @@ namespace Advent2023.Day12
                 if (row.Length == numWrecks || row[numWrecks] == '.')
                 {
                     // If we got fewer wrecks and then an okay spring, then we're bust as well!
-                    Memo.Add(memoKey, 0);
+                    _memo.Add(memoKey, 0);
                     return 0;
                 }
                 else
                 {
-                    // If the next char is a ?, then we will check if it checks out if that one is a #. If so,
+                    // If we got fewer wrecks, but the next char is a ?, then we will check if it checks out if that ? is a #...
                     var nextStr = Copy(row);
                     var nextLenghts = lenghts.ToList();
                     nextStr[numWrecks] = '#'; // It must be a # if next run checks out!
                     var delta = RunRecursive(nextStr, string.Join(',', nextLenghts));
 
+                    // ... and then if ? is a .
                     var nextStr2 = Copy(row);
                     var nextLenghts2 = lenghts.ToList();
                     nextStr2[numWrecks] = '.'; // It must be a # if next run checks out!
                     var delta2 = RunRecursive(nextStr2, string.Join(',', nextLenghts2));
 
-                    Memo.Add(memoKey, delta + delta2);
+                    // Return the sum of the both alternatives
+                    _memo.Add(memoKey, delta + delta2);
                     return delta + delta2;
                 }
             }
@@ -124,22 +118,25 @@ namespace Advent2023.Day12
                 // If we are done - then there are no nextLenghts, and no more # in the string!
                 if (nextLenghts.Count == 0 && nextStr.Where(p => p == '#').ToList().Count == 0)
                 {
-                    Memo.Add(memoKey, 1);
+                    _memo.Add(memoKey, 1);
                     return 1;
                 }
 
+                // If there are more lenghts, but no more string, then we're bust.
                 if (nextStr.Length == 0)
                 {
-                    Memo.Add(memoKey, 0);
+                    _memo.Add(memoKey, 0);
                     return 0;
                 }
 
-                nextStr[0] = '.'; // In case the next recursive run works, then next char is a ., and "next char" is at index 0
+                // We have more lengths to check for, so then we need to force the next char to be a . ... it could already be a . or a ?,
+                // but never a # - that would have failed since we were counting of wrecks!
+                nextStr[0] = '.';
                 return RunRecursive(nextStr, string.Join(',', nextLenghts));
             }
 
+            // Should never happen!
             return 0;
-
         }
 
 
@@ -169,18 +166,14 @@ namespace Advent2023.Day12
                 }
             }
 
-            Memo = new Dictionary<string, long>();
+            _memo = new Dictionary<string, long>();
             long sum = 0;
-            int r = 0;
             foreach (var sr in model.SpringRows)
             {
                 var groups = sr.SpringString.Split('.');
                 var lenghts = sr.GroupLenghts;
                 var num = RunRecursive(sr.SpringString.ToCharArray(), string.Join(',', lenghts));
                 sum += num;
-                int bbb = 9;
-                r++;
-                Console.WriteLine(r);
             }
 
             return sum.ToString();
