@@ -150,19 +150,19 @@ namespace Advent2023.Day12
                 foreach (var sr in model.SpringRows)
                 {
                     var s = "";
-                    var cc = "";
+                    var l = "";
                     for (int i = 0; i < 5; i++)
                     {
                         if (s != "")
                         {
                             s += "?";
-                            cc += ",";
+                            l += ",";
                         }
                         s += sr.SpringString;
-                        cc += string.Join(',', sr.GroupLenghts);
+                        l += sr.GroupLenghts;
                     }
                     sr.SpringString = s;
-                    sr.GroupLenghts = cc.Split(',').Select(p => int.Parse(p)).ToList();
+                    sr.GroupLenghts = l;
                 }
             }
 
@@ -170,9 +170,7 @@ namespace Advent2023.Day12
             long sum = 0;
             foreach (var sr in model.SpringRows)
             {
-                var groups = sr.SpringString.Split('.');
-                var lenghts = sr.GroupLenghts;
-                var num = RunRecursive(sr.SpringString.ToCharArray(), string.Join(',', lenghts));
+                var num = RunRecursive(sr.SpringString.ToCharArray(), string.Join(',', sr.GroupLenghts));
                 sum += num;
             }
 

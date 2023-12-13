@@ -9,7 +9,7 @@ namespace Advent2023.Day12
     public class SpringRow
     {
         public string SpringString;
-        public List<int> GroupLenghts;
+        public string GroupLenghts;
     }
 
     public class Model
@@ -34,7 +34,7 @@ namespace Advent2023.Day12
                 var sr = new SpringRow()
                 {
                     SpringString = arr[0],
-                    GroupLenghts = arr[1].Split(',').Select(p=>int.Parse(p)).ToList()
+                    GroupLenghts = arr[1]
                 };
                 retObj.SpringRows.Add(sr);
 
