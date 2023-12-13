@@ -8,7 +8,7 @@ namespace Advent2023.Day13
 {
     internal class Data
     {
-        public static string InputData = @"
+        public static string InputDataXX = @"
 #.##..##.
 ..#.##.#.
 ##......#
@@ -26,7 +26,7 @@ namespace Advent2023.Day13
 #....#..#
 ";
 
-        public static string InputDataXX = @"
+        public static string InputData = @"
 #..#.##.#..
 ###.####.##
 ###.####.##

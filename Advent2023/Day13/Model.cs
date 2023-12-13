@@ -27,6 +27,7 @@ namespace Advent2023.Day13
         public Dictionary<string, Coordinate> Coordinates;
         public int Width = 0;
         public int Height = 0;
+        public string AsString;
         public Coordinate Get(int x, int y)
         {
             var key = Coordinate.GetKey(x, y);
@@ -101,9 +102,11 @@ namespace Advent2023.Day13
                 {
                     y = 0;
                     currentGrid = new Grid();
+                    currentGrid.AsString = "";
                 }
 
                 var arr = l.ToCharArray();
+                currentGrid.AsString += l + "\n";
                 for (int x = 0; x < arr.Length; x++)
                 {
                     currentGrid.Verify(x, y);
