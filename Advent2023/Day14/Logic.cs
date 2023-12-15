@@ -117,7 +117,7 @@ namespace Advent2023.Day14
             // fulla loopar = 29411759
             // antal steg efter fulla loopar = 29411759*34
             // 999999806
-            // index i loopen: 999999839 - 999999806 = 33... näst sista, alltså?
+            // index i loopen: 999999839 - 999999806 = 33... den sista, alltså?
 
 
             for (int i = 0; i < 1000000000; i++)
