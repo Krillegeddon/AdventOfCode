@@ -38,7 +38,9 @@ namespace Advent2024.Day05
                         if (otherPos == -1)
                             continue;
                         if (otherPos > i)
+                        {
                             return false;
+                        }
                     }
                     else
                     {
@@ -54,6 +56,41 @@ namespace Advent2024.Day05
             return true;
         }
 
+
+        private static List<int> Organize(List<Rule> rulesModel, Print print)
+        {
+            var retList = new List<int>();
+
+            foreach (var num in print.Pages)
+            {
+                if (retList.Count == 0)
+                {
+                    retList.Add(num);
+                    continue;
+                }
+                bool wasInserted = false;
+                for (int i = 0; i < retList.Count; i++)
+                {
+                    var curr = retList[i];
+                    var rule = rulesModel.Where(p => p.Before == num && p.After == curr).SingleOrDefault();
+                    if (rule != null)
+                    {
+                        // Rule says the new value should be inserted before the current one..
+                        retList.Insert(i, num);
+                        wasInserted = true;
+                        break;
+                    }
+                }
+                // Okay, it was not inserted before anything, then add it to the end.
+                if (!wasInserted)
+                    retList.Add(num);
+                
+            }
+
+            return retList;
+        }
+
+
         public static string Run()
         {
             var model = Model.Parse();
@@ -66,11 +103,15 @@ namespace Advent2024.Day05
             {
                 if (!IsPrintCorrect(model.Rules, p))
                 {
+                    var correct = Organize(model.Rules, p);
+                    var middleNum2 = correct[correct.Count / 2];
+                    sum += middleNum2;
                     continue;
                 }
 
-                var middleNum = p.Pages[p.Pages.Count / 2];
-                sum += middleNum;
+                // Part 1 logic:
+                //var middleNum = p.Pages[p.Pages.Count / 2];
+                //sum += middleNum;
             }
 
             return sum.ToString();

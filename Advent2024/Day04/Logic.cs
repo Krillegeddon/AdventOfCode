@@ -37,8 +37,25 @@ namespace Advent2024.Day04
             }
 
 
-            // If we don't even start on an X, that's 0 XMAS:es here...
-            if (g.GetChar(x, y) != "X")
+            // If we don't even start on an A, that's 0 XMAS:es here...
+            if (g.GetChar(x, y) != "A")
+                return 0;
+
+            var a = g.GetChar(x - 1, y - 1);
+            var b = g.GetChar(x + 1, y + 1);
+            var c = g.GetChar(x + 1, y - 1);
+            var d = g.GetChar(x - 1, y + 1);
+
+            var ab = false;
+            if (a == "M" && b == "S" || a == "S" && b == "M")
+                ab = true;
+            var cd = false;
+            if (c == "M" && d == "S" || c == "S" && d == "M")
+                cd = true;
+
+            if (ab && cd)
+                return 1;
+            else
                 return 0;
 
             int retNum = 0;
@@ -47,11 +64,6 @@ namespace Advent2024.Day04
             {
                 for (int dy = -1; dy < 2; dy++)
                 {
-                    if (x == 5 && y == 0 && dx == 1 && dy == 0)
-                    {
-                        int bad = 33;
-                    }
-
                     if (CanFindXmas(g, x, y, dx, dy))
                         retNum++;
                 }

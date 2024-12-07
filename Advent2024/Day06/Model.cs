@@ -6,6 +6,14 @@ using System.Threading.Tasks;
 
 namespace Advent2024.Day06
 {
+    public enum Direction
+    {
+        Up,
+        Down,
+        Right,
+        Left
+    }
+
     public class Grid
     {
         public int Height { get; set; }
@@ -13,12 +21,13 @@ namespace Advent2024.Day06
 
         public int GuardX { get; set; }
         public int GuardY { get; set; }
-        public int GuardDeltaX { get; set; }
-        public int GuardDeltaY { get; set; }
+
+        public Direction Direction { get; set; }
 
         public required List<List<string>> Arr { get; set; }
 
-        public required Dictionary<string, bool> VisitedSquares { get; set; }
+        public required Dictionary<string, List<Direction>> VisitedSquares { get; set; }
+        public int NumPossibleLoopObstacles { get; set; }
 
         public string GetChar(int x, int y)
         {
@@ -32,39 +41,36 @@ namespace Advent2024.Day06
             return Arr[y][x];
         }
 
-        public void RotateGuardClockwise()
+        public Direction GetDirectionAfterRotate()
         {
             // Going down, should end up by going to the left...
-            if (GuardDeltaX == 0 && GuardDeltaY == 1)
+            if (Direction == Direction.Down)
             {
-                GuardDeltaX = -1;
-                GuardDeltaY = 0;
-                return;
+                return Direction.Left;
             }
 
             // Going up, should end up by going to the right...
-            if (GuardDeltaX == 0 && GuardDeltaY == -1)
+            if (Direction == Direction.Up)
             {
-                GuardDeltaX = 1;
-                GuardDeltaY = 0;
-                return;
+                return Direction.Right;
             }
 
             // Going right, should end up by going down...
-            if (GuardDeltaX == 1 && GuardDeltaY == 0)
+            if (Direction == Direction.Right)
             {
-                GuardDeltaX = 0;
-                GuardDeltaY = 1;
-                return;
+                return Direction.Down;
             }
-
             // Going left, should end up by going up...
-            if (GuardDeltaX == -1 && GuardDeltaY == 0)
+            if (Direction == Direction.Left)
             {
-                GuardDeltaX = 0;
-                GuardDeltaY = -1;
-                return;
+                return Direction.Up;
             }
+            throw new Exception("Could not happen!");
+        }
+
+        public void RotateGuardClockwise()
+        {
+            Direction = GetDirectionAfterRotate();
         }
 
         public bool IsInside()
@@ -84,21 +90,105 @@ namespace Advent2024.Day06
         {
             var posKey = GuardX + "," + GuardY;
             if (!VisitedSquares.ContainsKey(posKey))
-                VisitedSquares.Add(posKey, true);
+            {
+                VisitedSquares.Add(posKey, new List<Direction> { Direction });
+            }
+            else
+            {
+                var list = VisitedSquares[posKey];
+                if (!list.Contains(Direction))
+                {
+                    list.Add(Direction);
+                }
+            }
+        }
+
+        public void GetCoordinatesAfterMove(Direction direction, out int xout, out int yout)
+        {
+            GetCoordinatesAfterMove(direction, GuardX, GuardY, out xout, out yout);
+
+        }
+
+        public void GetCoordinatesAfterMove(Direction direction, int x, int y, out int xout, out int yout)
+        {
+            xout = x;
+            yout = y;
+            switch (direction)
+            {
+                case Direction.Left:
+                    xout = x-1;
+                    break;
+                case Direction.Right:
+                    xout = x+1;
+                    break;
+                case Direction.Up:
+                    yout = y-1;
+                    break;
+                case Direction.Down:
+                    yout = y+1;
+                    break;
+                default:
+                    break;
+            }
         }
 
         public void MoveGuard()
         {
-            GuardX += GuardDeltaX;
-            GuardY += GuardDeltaY;
+            int x, y;
+            GetCoordinatesAfterMove(Direction, out x, out y);
+            GuardX = x;
+            GuardY = y;
+
             if (IsInside())
                 MarkVisited();
         }
 
         public bool IsObstacleAhead()
         {
-            var c = GetChar(GuardX + GuardDeltaX, GuardY + GuardDeltaY);
+            var x = 0;
+            var y = 0;
+            GetCoordinatesAfterMove(Direction, out x, out y);
+            var c = GetChar(x, y);
             return c == "#";
+        }
+
+        public bool CanEnterLoop()
+        {
+            // If we place an obstacle on the path where guard has walked before, then we cannot put an 
+            // obstacle here - then the guard will not end up here...
+            var posKeyGuard = GuardX + "," + GuardY;
+            if (VisitedSquares.ContainsKey(posKeyGuard))
+            {
+
+            }
+
+
+
+            // Get new direction after rotate...
+            var direction = GetDirectionAfterRotate();
+            int x = GuardX;
+            int y = GuardY;
+            var di = Direction;
+            var h = Height;
+            var w = Width;
+
+            while (true)
+            {
+                // Get x/y for if we would take a step in that direction!
+                GetCoordinatesAfterMove(direction, x, y, out x, out y);
+
+                // If we are on obstacle, or outside... then it's not possible to put a mark here.
+                var c = GetChar(x, y);
+                if (c != ".")
+                    return false;
+
+                var posKey = x + "," + y;
+                if (VisitedSquares.ContainsKey(posKey))
+                {
+                    if (VisitedSquares[posKey].Where(p => p == direction).Any())
+                        return true;
+                }
+            }
         }
     }
 
@@ -115,7 +205,7 @@ namespace Advent2024.Day06
                 Grid = new Grid()
                 {
                     Arr = new List<List<string>>(),
-                    VisitedSquares = new Dictionary<string, bool>()
+                    VisitedSquares = new Dictionary<string, List<Direction>>()
                 }
             };
 
@@ -133,8 +223,7 @@ namespace Advent2024.Day06
                     var c = arr[i];
                     if (c.ToString() == "^")
                     {
-                        retObj.Grid.GuardDeltaY = -1;
-                        retObj.Grid.GuardDeltaX = 0;
+                        retObj.Grid.Direction = Direction.Up;
                         retObj.Grid.GuardX = i;
                         retObj.Grid.GuardY = retObj.Grid.Height;
                         retObj.Grid.MarkVisited();
