@@ -8,20 +8,8 @@ namespace Advent2024.Day07
 {
     public class Logic
     {
-        /*
-         * 81 40 27
-         * 81, 40, +
-         * 121, 27, +
-         * 121, 27, +
-         
-         */
-
-
         public static bool TraverseRecursive(List<long> list, long runningSum, int index, long wantedSum)
         {
-            if (index >= list.Count)
-                return false;
-
             if (index == list.Count - 1)
             {
                 if (runningSum + list[index] == wantedSum)

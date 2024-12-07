@@ -19,6 +19,13 @@ namespace Advent2024.Day01
             }
 
 
+            sum = 0;
+            for (var i = 0; i < model.List1.Count; i++)
+            {
+                var num = model.List1[i];
+                var numOcc = model.List2.Where(p => p == num).Count();
+                sum += model.List1[i] * numOcc;
+            }
 
             return sum.ToString();
         }

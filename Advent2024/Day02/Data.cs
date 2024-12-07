@@ -8,7 +8,7 @@ namespace Advent2024.Day02
 {
     internal class Data
     {
-        public static string InputDataX = @"7 6 4 2 1
+        public static string InputDataXX = @"7 6 4 2 1
 1 2 7 8 9
 9 7 6 2 1
 1 3 2 4 5
