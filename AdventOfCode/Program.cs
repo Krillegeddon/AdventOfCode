@@ -1,3 +1,1 @@
-﻿//await Advent2024.Day06.Fusk.Main();
-
-Console.WriteLine(Advent2024.Day07.Logic.Run());
+﻿Console.WriteLine(Advent2024.Day09.Logic.Run());
