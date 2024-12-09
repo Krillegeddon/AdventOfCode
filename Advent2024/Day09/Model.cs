@@ -8,21 +8,36 @@ namespace Advent2024.Day09
 {
     public class Model
     {
-        public required List<object> Obj { get; set; }
+        public required List<int> FileSystem { get; set; }
 
         public static Model Parse()
         {
             var retObj = new Model
             {
-                Obj = new List<object>()
+                FileSystem = new List<int>()
             };
 
-            foreach (var lx in Data.InputData.Split("\n"))
-            {
-                var l = lx.Trim();
+            var arr = Data.InputData.ToCharArray();
+            var input = arr.Select(p => int.Parse(p.ToString())).ToList();
 
-                if (string.IsNullOrEmpty(l))
-                    continue;
+            var isFile = true;
+            var idCount = 0;
+            for (int i = 0; i < input.Count; i++)
+            {
+                var length = input[i];
+                if (isFile)
+                {
+                    for (int j = 0; j < length; j++)
+                        retObj.FileSystem.Add(idCount);
+                    idCount++;
+                }
+                else
+                {
+                    for (int j = 0; j < length; j++)
+                        retObj.FileSystem.Add(-1);
+                }
+
+                isFile = !isFile;
             }
 
             return retObj;
