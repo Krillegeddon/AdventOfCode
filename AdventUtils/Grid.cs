@@ -12,6 +12,11 @@ namespace AdventUtils
         public int X { get; set; }
         public int Y { get; set; }
 
+        public Coord Copy()
+        {
+            return Coord.Create(X, Y);
+        }
+
         public static Coord Create(int x, int y)
         {
             return new Coord {X = x, Y = y};

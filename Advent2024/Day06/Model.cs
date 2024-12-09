@@ -15,7 +15,7 @@ namespace Advent2024.Day06
         Left
     }
 
-    public class Grid :GridBase
+    public class Grid : GridBase
     {
         public Coord GuardCoord { get; set; }
 
@@ -78,40 +78,38 @@ namespace Advent2024.Day06
             }
         }
 
-        public void GetCoordinatesAfterMove(Direction direction, out Coord retCoord)
+        public Coord GetCoordinatesAfterMove(Direction direction)
         {
-            GetCoordinatesAfterMove(direction, GuardCoord.X, GuardCoord.Y, out retCoord);
+            return GetCoordinatesAfterMove(direction, GuardCoord);
 
         }
 
-        public void GetCoordinatesAfterMove(Direction direction, int x, int y, out Coord retCoord)
+        public Coord GetCoordinatesAfterMove(Direction direction, Coord coord)
         {
-            retCoord = Coord.Create(x, y);
+            var retCoord = coord.Copy();
             switch (direction)
             {
                 case Direction.Left:
-                    retCoord.X = x-1;
+                    retCoord.X = coord.X - 1;
                     break;
                 case Direction.Right:
-                    retCoord.X = x+1;
+                    retCoord.X = coord.X +1;
                     break;
                 case Direction.Up:
-                    retCoord.Y = y-1;
+                    retCoord.Y = coord.Y -1;
                     break;
                 case Direction.Down:
-                    retCoord.Y = y+1;
+                    retCoord.Y = coord.Y +1;
                     break;
                 default:
                     break;
             }
+            return retCoord;
         }
 
         public void MoveGuard()
         {
-            Coord coord;
-            GetCoordinatesAfterMove(Direction, out coord);
-            GuardCoord.X = coord.X;
-            GuardCoord.Y = coord.Y;
+            GuardCoord = GetCoordinatesAfterMove(Direction);
 
             if (IsInside())
                 MarkVisited();
@@ -119,8 +117,7 @@ namespace Advent2024.Day06
 
         public bool IsObstacleAhead()
         {
-            Coord coord;
-            GetCoordinatesAfterMove(Direction, out coord);
+            var coord = GetCoordinatesAfterMove(Direction);
             var c = GetChar(coord);
             return c == "#";
         }
@@ -147,17 +144,16 @@ namespace Advent2024.Day06
             while (true)
             {
                 // Get x/y for if we would take a step in that direction!
-                GetCoordinatesAfterMove(direction, coord.X, coord.Y, out coord);
+                coord = GetCoordinatesAfterMove(direction, coord);
 
                 // If we are on obstacle, or outside... then it's not possible to put a mark here.
-                var c = GetChar(Coord.Create(coord.X, coord.Y));
+                var c = GetChar(coord);
                 if (c != ".")
                     return false;
 
-                var guardCoord = Coord.Create(coord.X, coord.Y);
-                if (VisitedSquares.ContainsKey(guardCoord))
+                if (VisitedSquares.ContainsKey(coord))
                 {
-                    if (VisitedSquares[guardCoord].Where(p => p == direction).Any())
+                    if (VisitedSquares[coord].Where(p => p == direction).Any())
                         return true;
                 }
             }
@@ -202,11 +198,6 @@ namespace Advent2024.Day06
 
                     retObj.Grid.SetChar(Coord.Create(i, y), c.ToString());
                 }
-                //retObj.Grid.Height2++;
-                //if (row.Count > retObj.Grid.Width2)
-                //{
-                //    retObj.Grid.Width2 = row.Count;
-                //}
                 y++;
             }
 
