@@ -78,29 +78,28 @@ namespace Advent2024.Day06
             }
         }
 
-        public void GetCoordinatesAfterMove(Direction direction, out int xout, out int yout)
+        public void GetCoordinatesAfterMove(Direction direction, out Coord retCoord)
         {
-            GetCoordinatesAfterMove(direction, GuardCoord.X, GuardCoord.Y, out xout, out yout);
+            GetCoordinatesAfterMove(direction, GuardCoord.X, GuardCoord.Y, out retCoord);
 
         }
 
-        public void GetCoordinatesAfterMove(Direction direction, int x, int y, out int xout, out int yout)
+        public void GetCoordinatesAfterMove(Direction direction, int x, int y, out Coord retCoord)
         {
-            xout = x;
-            yout = y;
+            retCoord = Coord.Create(x, y);
             switch (direction)
             {
                 case Direction.Left:
-                    xout = x-1;
+                    retCoord.X = x-1;
                     break;
                 case Direction.Right:
-                    xout = x+1;
+                    retCoord.X = x+1;
                     break;
                 case Direction.Up:
-                    yout = y-1;
+                    retCoord.Y = y-1;
                     break;
                 case Direction.Down:
-                    yout = y+1;
+                    retCoord.Y = y+1;
                     break;
                 default:
                     break;
@@ -109,10 +108,10 @@ namespace Advent2024.Day06
 
         public void MoveGuard()
         {
-            int x, y;
-            GetCoordinatesAfterMove(Direction, out x, out y);
-            GuardCoord.X = x;
-            GuardCoord.Y = y;
+            Coord coord;
+            GetCoordinatesAfterMove(Direction, out coord);
+            GuardCoord.X = coord.X;
+            GuardCoord.Y = coord.Y;
 
             if (IsInside())
                 MarkVisited();
@@ -120,10 +119,9 @@ namespace Advent2024.Day06
 
         public bool IsObstacleAhead()
         {
-            var x = 0;
-            var y = 0;
-            GetCoordinatesAfterMove(Direction, out x, out y);
-            var c = GetChar(Coord.Create(x, y));
+            Coord coord;
+            GetCoordinatesAfterMove(Direction, out coord);
+            var c = GetChar(coord);
             return c == "#";
         }
 
@@ -141,8 +139,7 @@ namespace Advent2024.Day06
 
             // Get new direction after rotate...
             var direction = GetDirectionAfterRotate();
-            int x = GuardCoord.X;
-            int y = GuardCoord.Y;
+            Coord coord = Coord.Create(GuardCoord.X, GuardCoord.Y);
             var di = Direction;
             var h = Height;
             var w = Width;
@@ -150,14 +147,14 @@ namespace Advent2024.Day06
             while (true)
             {
                 // Get x/y for if we would take a step in that direction!
-                GetCoordinatesAfterMove(direction, x, y, out x, out y);
+                GetCoordinatesAfterMove(direction, coord.X, coord.Y, out coord);
 
                 // If we are on obstacle, or outside... then it's not possible to put a mark here.
-                var c = GetChar(Coord.Create(x, y));
+                var c = GetChar(Coord.Create(coord.X, coord.Y));
                 if (c != ".")
                     return false;
 
-                var guardCoord = Coord.Create(x, y);
+                var guardCoord = Coord.Create(coord.X, coord.Y);
                 if (VisitedSquares.ContainsKey(guardCoord))
                 {
                     if (VisitedSquares[guardCoord].Where(p => p == direction).Any())
