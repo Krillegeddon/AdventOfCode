@@ -25,10 +25,28 @@ namespace AdventUtils
 
     public class GridBase
     {
-        public int Height { get; set; }
+        private int _height;
+
+        public int Height
+        {
+            get { return _height; }
+            set
+            {
+                _height = value;
+                if (value == 131)
+                {
+                    int bb = 9;
+                }
+            }
+        }
         public int Width { get; set; }
 
         private Dictionary<Coord, string> _grid = new Dictionary<Coord, string>();
+
+        public bool IsInside(Coord coord)
+        {
+            return IsWithin(coord);
+        }
 
         public bool IsWithin(Coord coord)
         {
@@ -56,6 +74,11 @@ namespace AdventUtils
 
         public void SetChar(Coord coord, string value)
         {
+            if (coord.Y > 128)
+            {
+                int bbb = 9;
+            }
+
             if (coord.X >= Width)
                 Width = coord.X + 1;
             if (coord.Y >= Height)

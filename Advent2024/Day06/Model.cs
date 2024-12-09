@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AdventUtils;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,32 +15,14 @@ namespace Advent2024.Day06
         Left
     }
 
-    public class Grid
+    public class Grid :GridBase
     {
-        public int Height { get; set; }
-        public int Width { get; set; }
-
-        public int GuardX { get; set; }
-        public int GuardY { get; set; }
+        public Coord GuardCoord { get; set; }
 
         public Direction Direction { get; set; }
 
-        public required List<List<string>> Arr { get; set; }
-
-        public required Dictionary<string, List<Direction>> VisitedSquares { get; set; }
+        public required Dictionary<Coord, List<Direction>> VisitedSquares { get; set; }
         public int NumPossibleLoopObstacles { get; set; }
-
-        public string GetChar(int x, int y)
-        {
-            if (x < 0 || y < 0)
-                return "";
-
-            if (y >= Arr.Count)
-                return "";
-            if (x >= Arr[y].Count)
-                return "";
-            return Arr[y][x];
-        }
 
         public Direction GetDirectionAfterRotate()
         {
@@ -75,27 +58,19 @@ namespace Advent2024.Day06
 
         public bool IsInside()
         {
-            if (GuardX < 0)
-                return false;
-            if (GuardY < 0)
-                return false;
-            if (GuardX > Width-1)
-                return false;
-            if (GuardY > Height-1)
-                return false;
-            return true;
+            return IsInside(Coord.Create(GuardCoord.X, GuardCoord.Y));
         }
 
         public void MarkVisited()
         {
-            var posKey = GuardX + "," + GuardY;
-            if (!VisitedSquares.ContainsKey(posKey))
+            var guardCoord = Coord.Create(GuardCoord.X, GuardCoord.Y);
+            if (!VisitedSquares.ContainsKey(guardCoord))
             {
-                VisitedSquares.Add(posKey, new List<Direction> { Direction });
+                VisitedSquares.Add(guardCoord, new List<Direction> { Direction });
             }
             else
             {
-                var list = VisitedSquares[posKey];
+                var list = VisitedSquares[guardCoord];
                 if (!list.Contains(Direction))
                 {
                     list.Add(Direction);
@@ -105,7 +80,7 @@ namespace Advent2024.Day06
 
         public void GetCoordinatesAfterMove(Direction direction, out int xout, out int yout)
         {
-            GetCoordinatesAfterMove(direction, GuardX, GuardY, out xout, out yout);
+            GetCoordinatesAfterMove(direction, GuardCoord.X, GuardCoord.Y, out xout, out yout);
 
         }
 
@@ -136,8 +111,8 @@ namespace Advent2024.Day06
         {
             int x, y;
             GetCoordinatesAfterMove(Direction, out x, out y);
-            GuardX = x;
-            GuardY = y;
+            GuardCoord.X = x;
+            GuardCoord.Y = y;
 
             if (IsInside())
                 MarkVisited();
@@ -148,7 +123,7 @@ namespace Advent2024.Day06
             var x = 0;
             var y = 0;
             GetCoordinatesAfterMove(Direction, out x, out y);
-            var c = GetChar(x, y);
+            var c = GetChar(Coord.Create(x, y));
             return c == "#";
         }
 
@@ -156,18 +131,18 @@ namespace Advent2024.Day06
         {
             // If we place an obstacle on the path where guard has walked before, then we cannot put an 
             // obstacle here - then the guard will not end up here...
-            var posKeyGuard = GuardX + "," + GuardY;
-            if (VisitedSquares.ContainsKey(posKeyGuard))
-            {
+            var posKeyGuard = GuardCoord.X + "," + GuardCoord.Y;
+            //if (VisitedSquares.ContainsKey(posKeyGuard))
+            //{
 
-            }
+            //}
 
 
 
             // Get new direction after rotate...
             var direction = GetDirectionAfterRotate();
-            int x = GuardX;
-            int y = GuardY;
+            int x = GuardCoord.X;
+            int y = GuardCoord.Y;
             var di = Direction;
             var h = Height;
             var w = Width;
@@ -178,14 +153,14 @@ namespace Advent2024.Day06
                 GetCoordinatesAfterMove(direction, x, y, out x, out y);
 
                 // If we are on obstacle, or outside... then it's not possible to put a mark here.
-                var c = GetChar(x, y);
+                var c = GetChar(Coord.Create(x, y));
                 if (c != ".")
                     return false;
 
-                var posKey = x + "," + y;
-                if (VisitedSquares.ContainsKey(posKey))
+                var guardCoord = Coord.Create(x, y);
+                if (VisitedSquares.ContainsKey(guardCoord))
                 {
-                    if (VisitedSquares[posKey].Where(p => p == direction).Any())
+                    if (VisitedSquares[guardCoord].Where(p => p == direction).Any())
                         return true;
                 }
             }
@@ -204,11 +179,11 @@ namespace Advent2024.Day06
             {
                 Grid = new Grid()
                 {
-                    Arr = new List<List<string>>(),
-                    VisitedSquares = new Dictionary<string, List<Direction>>()
+                    VisitedSquares = new Dictionary<Coord, List<Direction>>()
                 }
             };
 
+            var y = 0;
             foreach (var lx in Data.InputData.Split("\n"))
             {
                 var l = lx.Trim();
@@ -216,7 +191,6 @@ namespace Advent2024.Day06
                 if (string.IsNullOrEmpty(l))
                     continue;
 
-                var row = new List<string>();
                 var arr = l.ToCharArray();
                 for (var i = 0; i< arr.Length; i++)
                 {
@@ -224,20 +198,19 @@ namespace Advent2024.Day06
                     if (c.ToString() == "^")
                     {
                         retObj.Grid.Direction = Direction.Up;
-                        retObj.Grid.GuardX = i;
-                        retObj.Grid.GuardY = retObj.Grid.Height;
+                        retObj.Grid.GuardCoord = Coord.Create(i, y);
                         retObj.Grid.MarkVisited();
                         c = '.';
                     }
 
-                    row.Add(c.ToString());
+                    retObj.Grid.SetChar(Coord.Create(i, y), c.ToString());
                 }
-                retObj.Grid.Arr.Add(row);
-                retObj.Grid.Height++;
-                if (row.Count > retObj.Grid.Width)
-                {
-                    retObj.Grid.Width = row.Count;
-                }
+                //retObj.Grid.Height2++;
+                //if (row.Count > retObj.Grid.Width2)
+                //{
+                //    retObj.Grid.Width2 = row.Count;
+                //}
+                y++;
             }
 
             return retObj;

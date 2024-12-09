@@ -45,7 +45,6 @@ namespace Advent2024.Day08
                 if (string.IsNullOrEmpty(l))
                     continue;
 
-                var row = new List<string>();
                 var arr = l.ToCharArray();
                 for (var i = 0; i < arr.Length; i++)
                 {
