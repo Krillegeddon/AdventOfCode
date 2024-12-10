@@ -13,12 +13,13 @@ namespace Advent2024.Day10
 
         private static List<Coord> GetAdjacentCoords(Coord start, int neededValue)
         {
-            var retList = new List<Coord>();
-
-            retList.Add(Coord.Create(start.X - 1, start.Y));
-            retList.Add(Coord.Create(start.X + 1, start.Y));
-            retList.Add(Coord.Create(start.X, start.Y - 1));
-            retList.Add(Coord.Create(start.X, start.Y + 1));
+            var retList = new List<Coord>
+            {
+                Coord.Create(start.X - 1, start.Y),
+                Coord.Create(start.X + 1, start.Y),
+                Coord.Create(start.X, start.Y - 1),
+                Coord.Create(start.X, start.Y + 1)
+            };
 
             return retList.Where(p => _grid.IsInside(p) && _grid.GetValue(p) == neededValue).ToList();
         }
