@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace Advent2024.Day08
 {
 
-    public class Grid : GridBase
+    public class Grid : GridBase<string>
     {
         public required Dictionary<string, bool> Antinodes { get; set; }
 
@@ -49,7 +49,7 @@ namespace Advent2024.Day08
                 for (var i = 0; i < arr.Length; i++)
                 {
                     var c = arr[i];
-                    retObj.Grid.SetChar(Coord.Create(i, y), c.ToString());
+                    retObj.Grid.SetValue(Coord.Create(i, y), c.ToString());
                 }
                 y++;
             }

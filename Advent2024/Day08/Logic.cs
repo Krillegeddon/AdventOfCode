@@ -67,7 +67,7 @@ namespace Advent2024.Day08
                 for (int y = 0; y < model.Grid.Height; y++)
                 {
                     var coord = new Coord { X = x, Y = y };
-                    var id = _grid.GetChar(coord);
+                    var id = _grid.GetValue(coord);
                     if (id != ".")
                     {
                         if (!_antennas.ContainsKey(id))

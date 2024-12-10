@@ -28,7 +28,7 @@ namespace AdventUtils
         }
     }
 
-    public class GridBase
+    public class GridBase<T>
     {
         private int _height;
 
@@ -46,7 +46,7 @@ namespace AdventUtils
         }
         public int Width { get; set; }
 
-        private Dictionary<Coord, string> _grid = new Dictionary<Coord, string>();
+        private Dictionary<Coord, T> _grid = new Dictionary<Coord, T>();
 
         public bool IsInside(Coord coord)
         {
@@ -66,18 +66,18 @@ namespace AdventUtils
             return true;
         }
 
-        public string GetChar(Coord coord)
+        public T GetValue(Coord coord)
         {
             if (!IsWithin(coord))
-                return "";
+                return default;
 
             if (!_grid.ContainsKey(coord))
-                return "";
+                return default;
 
             return _grid[coord];
         }
 
-        public void SetChar(Coord coord, string value)
+        public void SetValue(Coord coord, T value)
         {
             if (coord.Y > 128)
             {

@@ -15,7 +15,7 @@ namespace Advent2024.Day06
         Left
     }
 
-    public class Grid : GridBase
+    public class Grid : GridBase<string>
     {
         public Coord GuardCoord { get; set; }
 
@@ -118,7 +118,7 @@ namespace Advent2024.Day06
         public bool IsObstacleAhead()
         {
             var coord = GetCoordinatesAfterMove(Direction);
-            var c = GetChar(coord);
+            var c = GetValue(coord);
             return c == "#";
         }
 
@@ -147,7 +147,7 @@ namespace Advent2024.Day06
                 coord = GetCoordinatesAfterMove(direction, coord);
 
                 // If we are on obstacle, or outside... then it's not possible to put a mark here.
-                var c = GetChar(coord);
+                var c = GetValue(coord);
                 if (c != ".")
                     return false;
 
@@ -196,7 +196,7 @@ namespace Advent2024.Day06
                         c = '.';
                     }
 
-                    retObj.Grid.SetChar(Coord.Create(i, y), c.ToString());
+                    retObj.Grid.SetValue(Coord.Create(i, y), c.ToString());
                 }
                 y++;
             }
