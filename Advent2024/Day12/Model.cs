@@ -4,17 +4,17 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Advent2024.Day11
+namespace Advent2024.Day12
 {
     public class Model
     {
-        public required List<long> Numbers { get; set; }
+        public required List<object> Obj { get; set; }
 
         public static Model Parse()
         {
             var retObj = new Model
             {
-                Numbers = new List<long>()
+                Obj = new List<object>()
             };
 
             foreach (var lx in Data.InputData.Split("\n"))
@@ -23,12 +23,6 @@ namespace Advent2024.Day11
 
                 if (string.IsNullOrEmpty(l))
                     continue;
-
-                var arr = l.Split(' ');
-                foreach (var n in arr)
-                {
-                    retObj.Numbers.Add(long.Parse(n));
-                }
             }
 
             return retObj;
