@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -12,16 +13,18 @@ namespace AdventUtils
         public int X { get; set; }
         public int Y { get; set; }
 
+        [DebuggerHidden]
         public Coord Copy()
         {
             return Coord.Create(X, Y);
         }
-
+        [DebuggerHidden]
         public static Coord Create(int x, int y)
         {
             return new Coord {X = x, Y = y};
         }
 
+        [DebuggerHidden]
         public override string ToString()
         {
             return X + "," + Y;
@@ -30,20 +33,7 @@ namespace AdventUtils
 
     public class GridBase<T>
     {
-        private int _height;
-
-        public int Height
-        {
-            get { return _height; }
-            set
-            {
-                _height = value;
-                if (value == 131)
-                {
-                    int bb = 9;
-                }
-            }
-        }
+        public int Height { get; set; }
         public int Width { get; set; }
 
         private Dictionary<Coord, T> _grid = new Dictionary<Coord, T>();
