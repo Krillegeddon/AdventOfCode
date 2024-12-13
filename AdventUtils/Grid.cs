@@ -34,6 +34,15 @@ namespace AdventUtils
         {
             return X + "," + Y;
         }
+
+        [DebuggerHidden]
+        public Coord Up() {  return Coord.Create(X, Y - 1); }
+        [DebuggerHidden]
+        public Coord Down() { return Coord.Create(X, Y + 1); }
+        [DebuggerHidden]
+        public Coord Left() { return Coord.Create(X - 1, Y); }
+        [DebuggerHidden]
+        public Coord Right() { return Coord.Create(X + 1, Y); }
     }
 
     public class GridBase<T>

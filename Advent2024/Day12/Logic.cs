@@ -1,6 +1,7 @@
 ﻿using AdventUtils;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -28,20 +29,6 @@ namespace Advent2024.Day12
 
         private static List<Coord> GetNeighbourAreas(Coord coord)
         {
-            // FFS! Spent an hour on thinking it would suffice if being connected diagonally
-            // also, but of course it cannot!!
-            //var retList = new List<Coord>();
-            //for (int x = -1; x < 2; x++)
-            //{
-            //    for (int y = -1; y < 2; y++)
-            //    {
-            //        if (x == 0 && y == 0)
-            //            continue;
-            //        var c = Coord.Create(coord.X + x, coord.Y + y);
-            //        retList.Add(c);
-            //    }
-
-            //}
             var neighbours = new List<Coord>()
             {
                 Coord.Create(coord.X, coord.Y - 1),
@@ -112,6 +99,98 @@ namespace Advent2024.Day12
         }
 
 
+        public class EdgeInfo
+        {
+            public bool HasTop { get; set; }
+            public bool HasBottom { get; set; }
+            public bool HasLeft { get; set; }
+            public bool HasRight { get; set; }
+
+            public int NumTop { get; set; }
+            public int NumBottom { get; set; }
+            public int NumLeft { get; set; }
+            public int NumRight { get; set; }
+
+            public EdgeInfo(bool hasTop, bool hasBottom, bool hasLeft, bool hasRight)
+            {
+                if (hasTop)
+                {
+                    HasTop = hasTop;
+                    NumTop = 1;
+                }
+                if (hasBottom)
+                {
+                    HasBottom = hasBottom;
+                    NumBottom = 1;
+                }
+                if (hasLeft)
+                {
+                    HasLeft = hasLeft;
+                    NumLeft = 1;
+                }
+                if (hasRight)
+                {
+                    HasRight = hasRight;
+                    NumRight = 1;
+                }
+            }
+        }
+
+
+        private static Dictionary<Coord, EdgeInfo> _edges = new Dictionary<Coord, EdgeInfo>();
+
+        private static bool IsSameArea(Coord coord, AreaId areaId)
+        {
+            if (!_grid.IsInside(coord))
+                return false;
+            if (_coords[coord] != areaId) return false;
+            return true;
+        }
+
+        private static void TraverseEdge(Coord coord)
+        {
+            // If we have already visited my location, then just return.
+            if (_edges.ContainsKey(coord))
+                return;
+
+            var visistedNeighbours = GetNeighbourAreas(coord)
+                .Where(p => _edges.ContainsKey(p) && _coords[p] == _coords[coord])
+                .ToList();
+
+            var areaId = _coords[coord];
+
+            var hasFenceUp = !IsSameArea(coord.Up(), areaId);
+            var hasFenceDown = !IsSameArea(coord.Down(), areaId);
+            var hasFenceLeft = !IsSameArea(coord.Left(), areaId);
+            var hasFenceRight = !IsSameArea(coord.Right(), areaId);
+            var edgeInfo = new EdgeInfo(hasFenceUp, hasFenceDown, hasFenceLeft, hasFenceRight);
+
+            foreach (var n in visistedNeighbours)
+            {
+                // Let's see if a neighbour already has counted my same edge, if so don't count my edge!
+                if (_edges[n].HasTop)
+                    edgeInfo.NumTop--;
+                if (_edges[n].HasBottom)
+                    edgeInfo.NumBottom--;
+                if (_edges[n].HasLeft)
+                    edgeInfo.NumLeft--;
+                if (_edges[n].HasRight)
+                    edgeInfo.NumRight--;
+            }
+
+            _edges.Add(coord, edgeInfo);
+
+            var unVisistedNeighbours = GetNeighbourAreas(coord)
+                .Where(p => !_edges.ContainsKey(p) && _grid.IsInside(p) && _coords[p] == _coords[coord])
+                .ToList();
+
+            foreach (var n in unVisistedNeighbours)
+            {
+                TraverseEdge(n);
+            }
+
+        }
+
         public static string Run()
         {
             var model = Model.Parse();
@@ -143,14 +222,19 @@ namespace Advent2024.Day12
             {
                 var coordsInArea = _areas[areaId];
                 var numFences = 0;
-                var edges = new List<Coord>();
                 
                 foreach (var coord in coordsInArea)
                 {
+                    if (_edges.ContainsKey(coord))
+                        continue;
+
                     var fences = CountFences(coord);
-                    numFences += fences;
-                    if (fences > 0)
-                        edges.Add(coord);
+                    if (fences == 0)
+                        continue;
+
+                    // Okay, we are now at a random coordinate within an area. This guy will have the number
+                    // of fences that is counted!
+                    TraverseEdge(coord);
 
                     // Start with a random edge. He will get the number of his total number of fences.
                     // top/bottom/right/left will be marked on him along with 1 on each.
@@ -159,8 +243,23 @@ namespace Advent2024.Day12
                     // When no more adjacent edges can be found, pick another random edge that has not yet been
                     // visited...
                 }
+
+                // We have gone through all edges of this area, let's count to see how many edges there are...
+                foreach (var coord in coordsInArea)
+                {
+                    if (!_edges.ContainsKey(coord))
+                        continue;
+                    numFences += _edges[coord].NumTop > 0 ? 1 : 0;
+                    numFences += _edges[coord].NumBottom > 0 ? 1 : 0;
+                    numFences += _edges[coord].NumLeft > 0 ? 1 : 0;
+                    numFences += _edges[coord].NumRight> 0 ? 1 : 0;
+                }
+
+
                 sum += numFences * coordsInArea.Count;
             }
+
+            //883041 - too high.
 
             return sum.ToString();
         }
