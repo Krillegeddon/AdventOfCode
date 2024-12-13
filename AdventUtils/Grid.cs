@@ -10,8 +10,8 @@ namespace AdventUtils
 {
     public record Coord
     {
-        public int X { get; set; }
-        public int Y { get; set; }
+        public long X { get; set; }
+        public long Y { get; set; }
 
         [DebuggerHidden]
         public Coord Copy()
@@ -23,6 +23,11 @@ namespace AdventUtils
         {
             return new Coord {X = x, Y = y};
         }
+        [DebuggerHidden]
+        public static Coord Create(long x, long y)
+        {
+            return new Coord { X = x, Y = y };
+        }
 
         [DebuggerHidden]
         public override string ToString()
@@ -33,8 +38,8 @@ namespace AdventUtils
 
     public class GridBase<T>
     {
-        public int Height { get; set; }
-        public int Width { get; set; }
+        public long Height { get; set; }
+        public long Width { get; set; }
 
         private Dictionary<Coord, T> _grid = new Dictionary<Coord, T>();
 
@@ -69,11 +74,6 @@ namespace AdventUtils
 
         public void SetValue(Coord coord, T value)
         {
-            if (coord.Y > 128)
-            {
-                int bbb = 9;
-            }
-
             if (coord.X >= Width)
                 Width = coord.X + 1;
             if (coord.Y >= Height)
